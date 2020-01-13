@@ -142,7 +142,7 @@ webpack 会基于以下默认原则分割代码 {
 module.exports = {
   optimization: {
     splitChunks: {
-      chunks: "async", // 只对异步加载的模块(动态导入的模块)进行拆分, 可选值还有all | initial
+      chunks: "async", // 只对异步加载的模块(动态导入的模块)进行拆分, 可选值还有all | initial (all动态导入和静态导入都切割, initial会切割静态)
       minSize: 30000, // 模块最小大于30kb才拆分
       maxSize: 0, // 0代表模块最大无上限, 设置具体值时, 会在模块超过上限值时候会再次拆分
       minChunks: 1, // 模块最少引用一次才会被拆分
@@ -199,6 +199,14 @@ webpack4 允许`import`进行动态导入, 但需要 babel 插件语法支持. `
   }
 
   // 只有执行这个函数, 才会导入jquery模块
+```
+
+由于 import 动态加载是基于 promise 的,如果浏览器不支持 promise 的时候需要添加 promise 插件
+
+```js
+// main.js
+import "core-js/modules/es6.promise";
+import "core-js/modules/es6.array.iterator";
 ```
 
 ## noParse (提高构建性能)
