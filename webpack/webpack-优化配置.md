@@ -314,3 +314,35 @@ output: {
   // contenthash 只针对输出文件的内容, 如果文件内容并没有发生改变, 哈希值不会改变
 }
 ```
+
+## BundleAnalysis打包分析
+
+
+## happypack
+
+由于 webpack 在 node 环境中运行打包构建, 所以是单线程的模式, 在打包众多资源时效率会比较低下, 早期可以通过 Happypack 来实现多进程打包. 当然, 这个问题只出现低版本的 webpack 中, 现在的 webpack 的性能已经非常强劲了, 所以无需使用 Happypack 也可以实现高性能打包
+
+1. 安装
+   `npm i -D happypack`
+2. 在 webpack 的配置文件中引入插件
+   `const Happypack = require('happypack')`
+3. 修改 loader 的配置规则
+
+```js
+{
+  test: /\.js$/,
+  use:{
+    loader: 'happypack',
+  },
+  include: path.resolve(__dirname, '../src'),
+  exclude: /node_modules/
+}
+```
+
+4. 配置插件
+
+```js
+new Happypack({
+  loaders: ["babel-loader"]
+});
+```
