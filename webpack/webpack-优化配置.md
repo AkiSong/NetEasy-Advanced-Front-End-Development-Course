@@ -315,8 +315,28 @@ output: {
 }
 ```
 
-## BundleAnalysis打包分析
+## BundleAnalysis 打包分析
 
+1. 使用 json 格式输出打包后的结果到某个指定文件中
+   `webpack --profile --json > stats.json`
+2. 将 json 文件放入工具中进行分析
+   官方工具 official analyze tool
+   官方推荐工具
+   webpack-chart
+   webpack-visualizer
+   webpack-bundle-analyzer
+   webpack bundle optimize helper
+
+## 覆盖率
+
+在优化访问新能时, 除了充分利用浏览器缓存之外, 还需要涉及一个新能指标, 覆盖率(corerage rate)
+可以在 Chrome 控制台中, 按住 ctrl shift p, 查找 corverage
+开始录制后, 刷新网页, 就可以看到每个 js 文件的覆盖率, 以及总覆盖率
+
+## 如何提高覆盖率
+
+尽可能多的使用动态导入, 也就是懒加载, 在可以使用动态导入的地方尽可能使用动态导入, 但这样也会产生一个问题, 就是用户体验过差
+可以使用 prefetching/preloading 在浏览器空闲时间加载动态导入资源
 
 ## happypack
 
