@@ -90,4 +90,31 @@
 ### 依赖分析
 
 1. 读取需要打包项目的配置文件
+
+```js
+//读取需要打包项目的配置文件, 先不考虑指定配置文件的路径, 默认配置文件在根目录
+let config = require(path.resolve("webpack.config.js"));
+```
+
 2. 通过面向对象的方式来推进项目
+
+```js
+// main-webpack.js
+let Compiler = require("../lib/Compiler.js");
+new Compiler(config).start();
+
+//Compiler.js
+class Compiler {
+  constructor(config) {
+    this.config = config;
+  }
+  depAnalyse(){
+
+  }
+  // 项目打包启动函数
+  start() {
+    // 依赖分析
+    this.depAnalyse();
+  }
+}
+```
