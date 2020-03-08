@@ -3,22 +3,27 @@ const fs = require("fs");
 const parser = require("@babel/parser"); //引入babel/parser模块
 const traverse = require("@babel/traverse").default; //引入Babel/traverse模块
 const generator = require("@babel/generator").default; //引入babel/generator模块
+const tem = require("art-template");
+
 class Compiler {
   constructor(config) {
     this.config = config;
     this.entry = config.entry;
     this.root = process.cwd(); //进程执行的时候所在的路径
+    this.modules = {}; //初始化一个对象, 存放所有模块
   }
   // 读取文件
   getSource(path) {
     return fs.readFileSync(path, "utf-8");
   }
   depAnalyse(moudlePath) {
+    // 读取模块内容
     let source = this.getSource(moudlePath);
-
+    // 提供一个数组, 缓存当前模块的依赖
+    let dependencies = [];
     // 使用babel/parser模块解析文件为抽象语法树
     // astexplore.net 抽象语法树资源管理器
-    let ast = parser(source, {
+    let ast = parser.parse(source, {
       sourceType: "module" //解析es6等高级语法
     });
     // 使用babel/traverse模块来替换抽象语法树
@@ -28,11 +33,41 @@ class Compiler {
         // 第一个形参, 代表抽象语法树中的节点
         if (p.node.callee.name === "require") {
           p.node.callee.name = "__webpack_require__";
+          // 替换require引入文件的相对路径
+          let oldValue = p.node.arguments[0].value;
+          p.node.arguments[0].value = (
+            "./" + path.join("src", oldValue)
+          ).replace(/\\+/g, "/");
+
+          dependencies.push(p.node.arguments[0].value);
         }
       }
     });
     // 使用babel/generator模块将替换好的ast转换为源码
-    generator(ast).code
+    let sourceCode = generator(ast).code;
+    // 获取当前模块的相对路径
+    let modulePathRelative = (
+      "./" + path.relative(this.root, moudlePath)
+    ).replace(/\\+/g, "/");
+    this.modules[modulePathRelative] = sourceCode;
+    // 递归加载所有依赖
+    dependencies.forEach(dep => this.depAnalyse(path.resolve(this.root, dep)));
+  }
+  // 输出打包后的代码
+  emitFile() {
+    // 读取模板字符串
+    let template = this.getSource(path.join(__dirname, "../template/tpl.art"));
+    // 使用模板引擎拼接代码
+    let result = tem.render(template, {
+      entry: this.entry,
+      modules: this.modules
+    });
+    // 获取输出目录
+    let outputPath = path.join(
+      this.config.output.path,
+      this.config.output.filename
+    );
+    fs.writeFileSync(outputPath, result);
   }
   // 项目开始打包
   start() {
@@ -40,6 +75,7 @@ class Compiler {
     // 找到项目路口的绝对路径要注意, __dirname表示的是 webpack 中Compiler.js所在的目录
     // 如果要获取执行 my-webpack 指令的目录, 需要使用process.cwd()
     this.depAnalyse(path.resolve(this.root, this.entry));
+    this.emitFile();
   }
 }
 
