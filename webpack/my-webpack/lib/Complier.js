@@ -11,6 +11,8 @@ class Compiler {
     this.entry = config.entry;
     this.root = process.cwd(); //进程执行的时候所在的路径
     this.modules = {}; //初始化一个对象, 存放所有模块
+    // loader
+    this.rules = this.config.module.rules
   }
   // 读取文件
   getSource(path) {
@@ -19,6 +21,27 @@ class Compiler {
   depAnalyse(moudlePath) {
     // 读取模块内容
     let source = this.getSource(moudlePath);
+    // 调用loader
+    let useLoader = (usePath, query)=>{
+      let loader = require(path.join(this.root, usePath))
+      source = loader.call(query, source)
+    }
+    // 读取rules规则, 进行倒叙遍历
+    for(let i = this.rules.length -1 ; i >= 0; i--){
+      let {use, test} = this.rules[i]
+      if(test.test(moudlePath)){
+        if(use instanceof String){
+          useLoader(use)
+        }else if(use instanceof Array){
+          for(let j = use.length -1 ; j >= 0; j--){
+            useLoader(use[j])
+          }
+        }else if(use instanceof Object){
+          useLoader(use.loader, { query: use.options})
+        }
+      }
+    }
+
     // 提供一个数组, 缓存当前模块的依赖
     let dependencies = [];
     // 使用babel/parser模块解析文件为抽象语法树
