@@ -4,6 +4,7 @@ const parser = require("@babel/parser"); //引入babel/parser模块
 const traverse = require("@babel/traverse").default; //引入Babel/traverse模块
 const generator = require("@babel/generator").default; //引入babel/generator模块
 const tem = require("art-template");
+const {SyncHook} = require('tapable')
 
 class Compiler {
   constructor(config) {
@@ -12,7 +13,19 @@ class Compiler {
     this.root = process.cwd(); //进程执行的时候所在的路径
     this.modules = {}; //初始化一个对象, 存放所有模块
     // loader
-    this.rules = this.config.module.rules
+    this.rules = this.config.module.rules;
+    // 先有hooks, 才能调用apply, 绑定钩子
+    this.hooks = {
+      compile: new SyncHook(),
+      afterCompile: new SyncHook(),
+      emit: new SyncHook(),
+      afterEmit: new SyncHook(),
+      done: new SyncHook(['modules'])
+    };
+    // plugins 当Compiler这个对象初始化的时候, 就应该调用pulgins中每个插件实例的apply方法, 将钩子函数注册到Compiler实例中
+    if(Array.isArray(this.config.plugins)){
+      this.config.plugins.forEach(plugin => plugin.apply(this));
+    }
   }
   // 读取文件
   getSource(path) {
@@ -22,22 +35,22 @@ class Compiler {
     // 读取模块内容
     let source = this.getSource(moudlePath);
     // 调用loader
-    let useLoader = (usePath, query)=>{
-      let loader = require(path.join(this.root, usePath))
-      source = loader.call(query, source)
-    }
+    let useLoader = (usePath, query) => {
+      let loader = require(path.join(this.root, usePath));
+      source = loader.call(query, source);
+    };
     // 读取rules规则, 进行倒叙遍历
-    for(let i = this.rules.length -1 ; i >= 0; i--){
-      let {use, test} = this.rules[i]
-      if(test.test(moudlePath)){
-        if(use instanceof String){
-          useLoader(use)
-        }else if(use instanceof Array){
-          for(let j = use.length -1 ; j >= 0; j--){
-            useLoader(use[j])
+    for (let i = this.rules.length - 1; i >= 0; i--) {
+      let { use, test } = this.rules[i];
+      if (test.test(moudlePath)) {
+        if (use instanceof String) {
+          useLoader(use);
+        } else if (use instanceof Array) {
+          for (let j = use.length - 1; j >= 0; j--) {
+            useLoader(use[j]);
           }
-        }else if(use instanceof Object){
-          useLoader(use.loader, { query: use.options})
+        } else if (use instanceof Object) {
+          useLoader(use.loader, { query: use.options });
         }
       }
     }
@@ -94,11 +107,18 @@ class Compiler {
   }
   // 项目开始打包
   start() {
+    // 钩子
+    this.hooks.compile.call()
     // 依赖分析
     // 找到项目路口的绝对路径要注意, __dirname表示的是 webpack 中Compiler.js所在的目录
     // 如果要获取执行 my-webpack 指令的目录, 需要使用process.cwd()
     this.depAnalyse(path.resolve(this.root, this.entry));
+    // 钩子
+    this.hooks.afterCompile.call()
+    this.hooks.emit.call();
     this.emitFile();
+    this.hooks.afterEmit.call();
+    this.hooks.done.call(this.modules);
   }
 }
 
