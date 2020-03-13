@@ -7,16 +7,22 @@
 </head>
 <body>
   <div id="app">
-    <p>{{msg}}</p>
+    <!-- {{msg}} -->
     <p v-text="msg"></p>
+    <input type="text" v-model="msg">
+    <button v-on:click="clickFn">按钮</button>
   </div>
-  <script src="./src/Compiler.js"></script>
-  <script src="./src/Vue.js"></script>
-  <script>
+  <script type="module">
+    import Vue from './src/Vue.js'
     const vm = new Vue({
       el: '#app',
-      dara: {
-        msg: 'hello Vue'
+      data: {
+        msg: 'hello Vue',
+      },
+      methods:{
+        clickFn(){
+          console.log(this)
+        }
       }
     })
   </script>
