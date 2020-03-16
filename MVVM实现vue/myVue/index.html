@@ -7,9 +7,10 @@
 </head>
 <body>
   <div id="app">
-    <!-- {{msg}} -->
+    {{msg}}
+    <p>{{car.brand}}</p>
     <p v-text="msg"></p>
-    <input type="text" v-model="msg">
+    <input type="text" v-model="car.brand">
     <button v-on:click="clickFn">按钮</button>
   </div>
   <script type="module">
@@ -18,10 +19,17 @@
       el: '#app',
       data: {
         msg: 'hello Vue',
+        car: {
+          brand: 'volvo'
+        }
       },
       methods:{
         clickFn(){
           console.log(this)
+          this.msg = '123'
+          this.car.brand = 'Daus'
+          // this.$data.msg = '123'
+          // this.$data.car.brand = 'Daus'
         }
       }
     })

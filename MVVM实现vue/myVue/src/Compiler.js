@@ -90,7 +90,7 @@ class Compiler {
    * @memberof Compiler
    */
   compileText(node){
-    // console.dir(node)
+    CompileUtils.mustache(node, this.vm)
   }
 
   /* 工具方法 */
