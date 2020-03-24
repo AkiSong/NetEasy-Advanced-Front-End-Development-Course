@@ -1,10 +1,18 @@
 const express = require('express')
 const nunjucks = require('nunjucks')
+const session = require('express-session')
 const path = require('path')
 const router = require('./router/index.js')
 
 const app = express()
 
+// 配置session
+app.use(session({
+  secret: 'keyboard cat',
+  resave: false,
+  saveUninitialized: true
+}))
+// 模板
 nunjucks.configure(path.join(__dirname, './view/'), {
     autoescape: true,
     express: app,

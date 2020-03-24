@@ -63,7 +63,7 @@
                   <label for="verify_code" class="control-label">验证码</label>
                   <div class="input-append">
                     <input id="verify_code" name="verify_code" type="text" placeholder="短信验证" class="span2 input-large msg-input" />
-                    <img src="/captcha" alt="" style="border: 1px solid #ccc;border-left: 0; height: 36px">
+                    <img id="captcha" src="/captcha" alt="" style="border: 1px solid #ccc;border-left: 0; height: 36px">
                   </div>
                 </div>
               </div>
@@ -177,13 +177,47 @@
     </div>
   </div>
   <script src="/node_modules/jquery/dist/jquery.js"></script>
+  <script src="/node_modules/jquery-validation/dist/jquery.validate.js"></script>
   <script>
-    $('#signupForm').on('submit', window.handeSignUp)
+    $('#signupForm').validate({
+      rules:{
+        username: {
+          required: true,
+          remote: '/users/check'
+        },
+        nickname: {
+          required: true,
+          remote: '/users/check'
+        },
+        verify_code: {
+          required: true,
+          remote: '/captcha/check'
+        },
+      },
+      messages:{
+        username:{
+          required: '请输入用户名',
+          remote: '用户名已存在'
+        },
+        nickname:{
+          required: '请输入昵称',
+          remote: '用户名已存在'
+        },
+        verify_code: {
+          required: '请输入验证码',
+          remote: '验证码不正确或者验证码过期'
+        },
+      },
+      submitHandler: function(form) {
+        window.handeSignUp()
+      }
+    })
+
     function handeSignUp(params) {
       $.ajax({
         url: '/signup',
         method:'POST',
-        data: $(this).serialize(),
+        data: $('#signupForm').serialize(),
         success(res){
           console.log(res)
           alert(res.message)
@@ -192,9 +226,12 @@
           console.log(err)
         }
       })
-      console.log()
       return false
     }
+
+    $('#captcha').click(function(params) {
+      $(this).attr('src','/captcha?' + Math.random())
+    })
   </script>
 </body>
 
