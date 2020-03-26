@@ -4,43 +4,16 @@ import "./index.css";
 import App from "./App";
 import * as serviceWorker from "./serviceWorker";
 import { createStore } from "redux";
+import rootReducer from './reducers'
 
-function Reducer(state = 0, action) {
-  if (action.type === "increment") {
-    return state + 1;
-  }
-  if (action.type === "decrement") {
-    return state - 1;
-  }
-  return state;
-}
 
-const store = createStore(Reducer);
+const store = createStore(rootReducer);
 
 store.subscribe(_ => {
   console.log(store.getState());
 });
 
-const Counter = props => {
-  return (
-    <div>
-      <h1>{props.value}</h1>
-      <button onClick={increment}>increment</button>
-      <button>decrement</button>
-    </div>
-  );
-};
-
-let increment = () => {
-  store.dispatch({ type: "increment" });
-  render()
-};
-
-render()
-
-function render() {
-  ReactDOM.render(<Counter value={store.getState()} />, document.getElementById("root"));
-}
+ReactDOM.render(<App />, document.getElementById("root"));
 
 
 // If you want your app to work offline and load faster, you can change

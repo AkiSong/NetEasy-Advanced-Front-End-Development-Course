@@ -1,0 +1,1 @@
+var tomain = document.getElementById('tomain')
