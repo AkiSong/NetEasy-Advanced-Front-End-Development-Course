@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>promise 顺序加载图片</title>
+  </head>
+  <body>
+    <div id="pics"></div>
+    <script>
+      var arr = [
+        "http://a3.att.hudong.com/14/75/01300000164186121366756803686.jpg",
+        "http://a0.att.hudong.com/64/76/20300001349415131407760417677.jpg",
+        "http://a2.att.hudong.com/36/48/19300001357258133412489354717.jpg",
+      ];
+      var pics = document.querySelector("#pics");
+      function loadImg(src) {
+        return new Promise(function (resolve, reject) {
+          var img = document.createElement("img");
+          img.src = src;
+          img.onload = function (params) {
+            resolve(img);
+          };
+          img.onerror = function (params) {
+            reject("加载失败");
+          };
+        });
+      }
+
+      Array.prototype.forEachSync = async function (callback, thisArg) {
+        for (let [index, item] of Object.entries(this)) {
+          await callback(item, index, this);
+        }
+      };
+
+      arr.forEachSync(async (item) => {
+        try {
+          const img = await loadImg(item);
+          pics.appendChild(img)
+        } catch (e) {
+          console.log(e);
+        }
+      });
+    </script>
+  </body>
+</html>
