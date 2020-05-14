@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title></title>
+  </head>
+  <body>
+    <script src="./underscore.js"></script>
+    <script>
+      // console.log(_.map([1,2,3], function(item){
+      // 	  return item * 3
+      // }))
+      // console.log(_([1,2,3]))
+      // chain() 开启链式调用     instance.unique()
+      console.log(
+        _([1, 2, 3])
+          .chain()
+          .map(function (item) {
+            return item * 3;
+          })
+          .max()
+          .value()
+      );
+    </script>
+  </body>
+</html>
