@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+
+<html lang="cn">
+  <body>
+    <button id="add">add</button>
+
+    <div id="app"></div>
+  </body>
+  <script src="./reactive.js"></script>
+  <script>
+    let data = reactive({
+      count: 0,
+    });
+    console.log(data)
+
+    document.getElementById("add").addEventListener("click", function () {
+      data.count++;
+    });
+
+    let str;
+
+    watch(() => {
+      str = `点击了 ${data.count} 次`;
+
+      document.getElementById("app").innerText = str;
+    });
+  </script>
+</html>
