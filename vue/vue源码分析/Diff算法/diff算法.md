@@ -13,6 +13,14 @@
 什么是 diff
 通俗说， 就是将老虎变成大象需要几步？
 
-### diff策略
-1. 按照tree的层级进行diff（level by level）
-![](./diff02.png)
+### diff 策略
+
+1. 按照 tree 的层级进行 diff（level by level）
+   ![diff策略](./diff02.png)
+
+2. 按照类型进行 diff
+   ![diff策略02](./diff03.png)
+   上下 vm 树对比， 先比较第一层， 发现有个 vm 类型不一致， 虽然他们的子节点是同一类型， 但是 diff 会删除原来的 vm， 创建新的类型
+3. 列表 diff
+   ![diff04](./diff04.png)
+   通过 key， 对列表中子节点作标记
